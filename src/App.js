@@ -11,10 +11,16 @@ class App extends Component {
       {pmtDate: '20190702', pmtAmount: '1000'},
       {pmtDate: '20190701', pmtAmount: '1000'},
       {pmtDate: '20190802', pmtAmount: '1000'},
-      {pmtDate: '20190709', pmtAmount: '1000'},
-      {pmtDate: '20190709', pmtAmount: '1500'}
+      {pmtDate: '20190809', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1500'},
+      {pmtDate: '20190701', pmtAmount: '1500'},
+      {pmtDate: '20190702', pmtAmount: '1000'},
+      {pmtDate: '20190701', pmtAmount: '1000'},
+      {pmtDate: '20190802', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1500'}
     ],
-
+    
   };
 }
 
@@ -22,11 +28,34 @@ class App extends Component {
     return str.substring(0,6)
   };
 
+  filterByCurrentMonth = (arr, month) => {
+    let result = []
+    for (var i = 0; i < arr.length; i++){
+      if (this.getMonth(arr[i].pmtDate) === month){
+         result.push(arr[i]);
+      }
+    }
+    return result
+    };
+
+    updateArray = () => {
+      this.setState({
+        filtered: this.filterByCurrentMonth(this.state.initialArray, '201907')
+      })
+    };
+
   sameMonthAndPrice = (arr, month, price) => {
-    let result = arr.filter(x => this.getMonth(x.pmtDate) === month && x.pmtAmount === price)
+    let result = arr.filter(x =>  this.getMonth(x.pmtDate) === month && x.pmtAmount === price)
     let count = result.length
     return count
   };
+
+
+  sameMonthAndPrice2 = (arr, price) => {
+    let result = arr.filter(x => x.pmtAmount === price)
+    let count = result.length
+    return count
+  }
 
   sameDateAndPrice = (arr, date, price) => {
     let result = arr.filter(x => x.pmtAmount === price && x.pmtDate === date)
@@ -35,38 +64,50 @@ class App extends Component {
   };
 
   totalPaymentsToday = (arr, date) => {
-    let updated = arr.filter(x => x.pmtDate === date)
-    let result = 0
-    for (var i = 0; i < updated.length; i++){
-      if (updated[i].pmtAmount === '1000'){
-        result += 1000
-      }
-      else {
-        result += 1500
-      }
-    }
-    return result
+    return 1000 * this.sameDateAndPrice(arr, date, '1000') +
+    1500 * this.sameDateAndPrice(arr, date, '1500')
   };
 
   totalPaymentsThisMonth = (arr, month) => {
-    let updated = arr.filter(x => this.getMonth(x.pmtDate) === month)
-    let result = 0
-    for (var i = 0; i < updated.length; i++){
-      if (updated[i].pmtAmount === '1000'){
-        result += 1000
-      }
-      else {
-        result += 1500
-      }
-    }
-    return result
+    return 1000 * this.sameMonthAndPrice(arr, month, '1000') +
+    1500 * this.sameMonthAndPrice(arr, month, '1500')
   };
 
   render () {
     const {initialArray} = this.state
-    const date = "20190701";
-    console.log(this.sameMonthAndPrice(this.state.initialArray, '201907', '1000'));
 
+    const initial = [
+      {pmtDate: '20190701', pmtAmount: '1500'},
+      {pmtDate: '20190702', pmtAmount: '1000'},
+      {pmtDate: '20190701', pmtAmount: '1000'},
+      {pmtDate: '20190802', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1500'},
+      {pmtDate: '20190701', pmtAmount: '1500'},
+      {pmtDate: '20190702', pmtAmount: '1000'},
+      {pmtDate: '20190701', pmtAmount: '1000'},
+      {pmtDate: '20190802', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1000'},
+      {pmtDate: '20190809', pmtAmount: '1500'}
+    ];
+
+    const thisMonthOnly = this.filterByCurrentMonth(this.state.initialArray, '201907');
+
+    /*console.time("Check 1");
+    console.log(this.sameMonthAndPrice2(thisMonthOnly, '1000'));
+    console.timeEnd("Check 1");
+
+    console.time("Check 2");
+    console.log(this.sameMonthAndPrice(this.state.initialArray, '201907', '1000'));
+    console.timeEnd("Check 2");
+
+    console.time("Check 3");
+    console.log(this.sameDateAndPrice(thisMonthOnly, '20190701', '1000'));
+    console.timeEnd("Check 3");
+
+    console.time("Check 4");
+    console.log(this.sameDateAndPrice(initial, '20190701', '1000'));
+    console.timeEnd("Check 4");*/
 
   return (
     <div className="App">
@@ -75,28 +116,28 @@ class App extends Component {
     <ul>
     <li>
         Number of 1000 payments today:
-        {this.sameDateAndPrice(this.state.initialArray, '20190709', '1000')}
+        {this.sameDateAndPrice(thisMonthOnly, '20190709', '1000')}
     </li>
     <li>
         Number of 1500 payments today:
-        {this.sameDateAndPrice(this.state.initialArray, '20190709', '1500')}
+        {this.sameDateAndPrice(thisMonthOnly, '20190709', '1500')}
     </li>
     <li>
         Number of 1000 payments this month:
-        {this.sameMonthAndPrice(this.state.initialArray, '201907', '1000')}
+        {this.sameMonthAndPrice2(thisMonthOnly, '1000')}
     </li>
     <li>
         Number of 1500 payments this month:
-        {this.sameMonthAndPrice(this.state.initialArray, '201907', '1500')}
+        {this.sameMonthAndPrice2(thisMonthOnly, '1500')}
 
     </li>
     <li>
         Total payments today:
-        {this.totalPaymentsToday(this.state.initialArray, '20190709')}
+        {this.totalPaymentsToday(thisMonthOnly, '20190709')}
     </li>
     <li>
         Total payments this month:
-        {this.totalPaymentsThisMonth(this.state.initialArray, '201907')}
+        {this.totalPaymentsThisMonth(thisMonthOnly, '201907')}
     </li>
     </ul>
     </div>
